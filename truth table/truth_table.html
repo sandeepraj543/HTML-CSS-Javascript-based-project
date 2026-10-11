@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logic Gate Truth Table</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        .container {
+            max-width: 750px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        select,
+        button {
+            padding: 12px 18px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #aaa;
+        }
+
+        button {
+            cursor: pointer;
+            background: #eee;
+        }
+
+        button.active {
+            background: #333;
+            color: white;
+        }
+
+        .result {
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            background: #f0f2f5;
+        }
+
+        .inputs {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .output {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+
+        th,
+        td {
+            border: 1px solid #bbb;
+            padding: 14px;
+            font-size: 18px;
+        }
+
+        th {
+            background: #e9ecef;
+        }
+
+        tr.current {
+            background: #d9f7df;
+            font-weight: bold;
+        }
+
+        .explanation {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-left: 5px solid #555;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Logic Gate Truth Table</h1>
+
+    <div class="controls">
+
+        <label>
+            Gate:
+            <select id="gate">
+                <option value="AND">AND</option>
+                <option value="OR">OR</option>
+                <option value="XOR">XOR</option>
+                <option value="XNOR">XNOR</option>
+            </select>
+        </label>
+
+        <button id="inputA">A = 0</button>
+        <button id="inputB">B = 0</button>
+
+    </div>
+
+    <div class="result">
+
+        <div class="inputs">
+            A = <span id="aValue">0</span>
+            &nbsp;&nbsp;
+            B = <span id="bValue">0</span>
+        </div>
+
+        <div>
+            Gate: <strong id="gateName">AND</strong>
+        </div>
+
+        <div class="output">
+            Output = <span id="output">0</span>
+        </div>
+
+    </div>
+
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>A</th>
+                <th>B</th>
+                <th id="gateHeader">AND</th>
+            </tr>
+        </thead>
+
+        <tbody id="truthTable">
+        </tbody>
+
+    </table>
+
+
+    <div class="explanation">
+        <strong>Rule:</strong>
+        <span id="rule">
+            AND → Output is 1 only when both inputs are 1.
+        </span>
+    </div>
+
+</div>
+
+
+<script>
+
+    let A = 0;
+    let B = 0;
+
+    const gateSelect = document.getElementById("gate");
+
+    const buttonA = document.getElementById("inputA");
+    const buttonB = document.getElementById("inputB");
+
+    const aValue = document.getElementById("aValue");
+    const bValue = document.getElementById("bValue");
+
+    const output = document.getElementById("output");
+
+    const gateName = document.getElementById("gateName");
+    const gateHeader = document.getElementById("gateHeader");
+
+    const truthTable = document.getElementById("truthTable");
+
+    const rule = document.getElementById("rule");
+
+
+    // Logic Gate Function
+    function calculate(a, b, gate) {
+
+        switch (gate) {
+
+            case "AND":
+                return a & b;
+
+            case "OR":
+                return a | b;
+
+            case "XOR":
+                return a ^ b;
+
+            case "XNOR":
+                return a === b ? 1 : 0;
+
+            default:
+                return 0;
+        }
+    }
+
+
+    // Gate explanation
+    function getRule(gate) {
+
+        if (gate === "AND") {
+            return "AND → Output is 1 only when both inputs are 1.";
+        }
+
+        if (gate === "OR") {
+            return "OR → Output is 1 when at least one input is 1.";
+        }
+
+        if (gate === "XOR") {
+            return "XOR → Output is 1 when the inputs are different.";
+        }
+
+        if (gate === "XNOR") {
+            return "XNOR → Output is 1 when the inputs are the same.";
+        }
+    }
+
+
+    // Generate Truth Table
+    function generateTruthTable() {
+
+        const gate = gateSelect.value;
+
+        truthTable.innerHTML = "";
+
+        const combinations = [
+            [0, 0],
+            [0, 1],
+            [1, 0],
+            [1, 1]
+        ];
+
+        combinations.forEach(function(pair) {
+
+            const a = pair[0];
+            const b = pair[1];
+
+            const result = calculate(a, b, gate);
+
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td>${a}</td>
+                <td>${b}</td>
+                <td>${result}</td>
+            `;
+
+            // Highlight current input combination
+            if (a === A && b === B) {
+                row.classList.add("current");
+            }
+
+            truthTable.appendChild(row);
+        });
+    }
+
+
+    // Update Output
+    function updateOutput() {
+
+        const gate = gateSelect.value;
+
+        const result = calculate(A, B, gate);
+
+        aValue.textContent = A;
+        bValue.textContent = B;
+
+        output.textContent = result;
+
+        gateName.textContent = gate;
+        gateHeader.textContent = gate;
+
+        rule.textContent = getRule(gate);
+
+        buttonA.textContent = `A = ${A}`;
+        buttonB.textContent = `B = ${B}`;
+
+        generateTruthTable();
+    }
+
+
+    // Change A
+    buttonA.addEventListener("click", function() {
+
+        A = A === 0 ? 1 : 0;
+
+        updateOutput();
+
+    });
+
+
+    // Change B
+    buttonB.addEventListener("click", function() {
+
+        B = B === 0 ? 1 : 0;
+
+        updateOutput();
+
+    });
+
+
+    // Change Gate
+    gateSelect.addEventListener("change", function() {
+
+        updateOutput();
+
+    });
+
+
+    // Initial display
+    updateOutput();
+
+</script>
+
+</body>
+</html>
